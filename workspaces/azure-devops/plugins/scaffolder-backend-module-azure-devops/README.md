@@ -53,6 +53,178 @@ To use other authentication methods, see the [documentation.](https://backstage.
 You can use the action in any of the steps of your [Software Template](https://backstage.io/docs/features/software-templates/).
 See [here](../../examples/scaffolder.yaml) for an example of a Software Template making use of the Azure Run Action.
 
+---
+
+## Actions Reference
+
+### azure:pipeline:create
+
+Creates a pipeline definition in Azure DevOps from a YAML file.
+
+#### Input Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `organization` | `string` | ✅ | - | The name of the Azure DevOps organization |
+| `project` | `string` | ✅ | - | The name of the Azure project |
+| `repository` | `string` | ✅ | - | The repository name for the pipeline |
+| `pipelineName` | `string` | ✅ | - | The name of the pipeline to create |
+| `pipelineYamlFile` | `string` | ✅ | - | The path to the pipeline YAML file |
+| `host` | `string` | ❌ | `dev.azure.com` | The Azure DevOps host |
+| `branch` | `string` | ❌ | `main` | The branch of the pipeline's repository |
+| `pipelineFolder` | `string` | ❌ | `/` | The folder where to create the pipeline |
+| `pipelineAgentPoolName` | `string` | ❌ | `Azure Pipelines` | The name of the agent pool |
+| `token` | `string` | ❌ | - | Token for Azure DevOps REST API authentication |
+
+#### Output Values
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `pipelineUrl` | `string` | URL of the created pipeline |
+| `pipelineId` | `string` | The pipeline ID |
+
+---
+
+### azure:pipeline:run
+
+Runs an existing Azure DevOps pipeline.
+
+#### Input Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `organization` | `string` | ✅ | - | The name of the Azure DevOps organization |
+| `project` | `string` | ✅ | - | The name of the Azure project |
+| `pipelineId` | `string` | ✅ | - | The pipeline ID to execute |
+| `host` | `string` | ❌ | `dev.azure.com` | The Azure DevOps host |
+| `branch` | `string` | ❌ | `main` | The branch of the pipeline's repository |
+| `token` | `string` | ❌ | - | Token for Azure DevOps REST API authentication |
+| `pollingInterval` | `number` | ❌ | `0` | Seconds between each poll for pipeline status. `0` = no polling |
+| `pipelineTimeout` | `number` | ❌ | - | Max seconds to wait for pipeline completion. Only effective if `pollingInterval` > 0 |
+| `templateParameters` | `object` | ❌ | - | Azure DevOps pipeline template parameters in key-value pairs |
+| `failIfNotSuccessful` | `boolean` | ❌ | `false` | Fail the action if the pipeline run was not successful |
+
+#### Output Values
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `pipelineRunUrl` | `string` | URL of the pipeline run |
+| `pipelineRunStatus` | `enum` | Pipeline run status: `canceled`, `failed`, `succeeded`, `unknown` |
+| `pipelineRunId` | `number` | The pipeline run ID |
+| `pipelineTimeoutExceeded` | `boolean` | `true` if the pipeline did not complete within the defined timespan |
+| `pipelineOutput` | `object` | Object containing output variables from the pipeline |
+
+---
+
+### azure:pipeline:permit
+
+Authorizes or revokes a pipeline's access to an Azure DevOps resource.
+
+#### Input Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `organization` | `string` | ✅ | - | The name of the Azure DevOps organization |
+| `project` | `string` | ✅ | - | The name of the Azure project |
+| `pipelineId` | `string` | ✅ | - | The pipeline ID |
+| `resourceId` | `string` | ✅ | - | The resource ID |
+| `resourceType` | `string` | ✅ | - | The resource type: `endpoint`, `repository`, `variablegroup`, `queue`, `securefile` |
+| `host` | `string` | ❌ | `dev.azure.com` | The Azure DevOps host |
+| `authorized` | `boolean` | ❌ | `true` | Authorize or revoke access |
+| `apiVersion` | `string` | ❌ | `7.1-preview.1` | API version for authorization |
+| `token` | `string` | ❌ | - | Token for Azure DevOps REST API authentication |
+
+#### Output Values
+
+This action does not produce any output.
+
+#### Supported Resource Types
+
+| Resource Type | Description |
+|---------------|-------------|
+| `endpoint` | Service Connections |
+| `repository` | Git Repositories |
+| `variablegroup` | Variable Groups |
+| `queue` | Agent Queues |
+| `securefile` | Secure Files |
+
+---
+
+### azure:repository:clone
+
+Clones an Azure DevOps repository into the scaffolder workspace directory.
+
+#### Input Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `remoteUrl` | `string` | ✅ | - | The Git URL to the repository |
+| `branch` | `string` | ❌ | `main` | The branch to checkout |
+| `targetPath` | `string` | ❌ | `./` | The subdirectory of the workspace to clone the repository into |
+| `cloneDepth` | `number` | ❌ | - | Performs a shallow fetch, retrieving only the latest n commits |
+| `token` | `string` | ❌ | - | Token for authentication |
+
+#### Output Values
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `cloneFullPath` | `string` | The full directory path where the repository was cloned |
+
+---
+
+### azure:repository:push
+
+Pushes the workspace content to a remote Azure DevOps repository.
+
+#### Input Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `remoteUrl` | `string` | ✅ | - | The Git URL to the repository |
+| `branch` | `string` | ❌ | `scaffolder` | The branch to push to |
+| `sourcePath` | `string` | ❌ | `.` | The subdirectory of the workspace containing the repository |
+| `gitCommitMessage` | `string` | ❌ | `Initial commit` | The commit message |
+| `gitAuthorName` | `string` | ❌ | - | The commit author name |
+| `gitAuthorEmail` | `string` | ❌ | - | The commit author email |
+| `token` | `string` | ❌ | - | Token for authentication |
+
+#### Output Values
+
+This action does not produce any output.
+
+---
+
+### azure:pr:create
+
+Creates a Pull Request in an Azure DevOps repository.
+
+#### Input Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `title` | `string` | ✅ | - | The Pull Request title |
+| `repoName` | `string` | ✅ | - | The repository name |
+| `project` | `string` | ✅ | - | The Azure DevOps project |
+| `organization` | `string` | ❌ | - | The Azure DevOps organization name |
+| `sourceBranch` | `string` | ❌ | `scaffolder` | The source branch to merge |
+| `targetBranch` | `string` | ❌ | `main` | The target branch |
+| `description` | `string` | ❌ | - | The Pull Request description |
+| `supportsIterations` | `boolean` | ❌ | - | Whether the PR supports iterations |
+| `server` | `string` | ❌ | `dev.azure.com` | The Azure DevOps service hostname |
+| `token` | `string` | ❌ | - | Token for authentication |
+| `autoComplete` | `boolean` | ❌ | `false` | Enable auto-completion once policies are met |
+| `workItemId` | `string` | ❌ | - | The work item ID to associate with the PR |
+
+#### Output Values
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `pullRequestId` | `number` | The ID of the created Pull Request |
+
+---
+
+## Examples
+
 ### Example with the `azure:pipeline:run` action
 
 ```yaml
